@@ -18,13 +18,11 @@ Shared navigation on every page: **Home · Applications · + Add** (the Add link
 
 ```mermaid
 flowchart TD
-    Open(["Open the app"]) --> Saved{"Anything saved?"}
-    Saved -- No --> Step1["Step 1: Add your<br/>first application<br/>(link, company, role)"]
+    Saved{"Open the app:<br/>anything saved?"} -- No --> Step1["Step 1: Add your first application<br/>(link, company, role)"]
     Saved -- Yes --> Welcome["Welcome back<br/>(see flow 4)"]
-    Step1 -- "Empty or wrong" --> Err1["Error next to the field<br/>typed input kept"]
+    Step1 -- "Empty or wrong" --> Err1["Error next to the field,<br/>typed input kept"]
     Err1 --> Step1
-    Step1 -- "All valid" --> Fold["Step 1 folds up"]
-    Fold --> Step2["Step 2: Set your<br/>weekly goal"]
+    Step1 -- "All valid: step folds up" --> Step2["Step 2: Set your<br/>weekly goal"]
     Step2 -- "Not a whole number" --> Err2["Enter a whole<br/>number, 1 or more"]
     Err2 --> Step2
     Step2 -- "Both done" --> Add["Add button appears"]
