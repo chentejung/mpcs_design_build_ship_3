@@ -6,7 +6,7 @@
 
 | Route | Step | What's on it |
 |---|---|---|
-| `/` | First visit / Welcome back | New: what the tool is for, a paste-link field, and a sample application you can try. Returning: a "Welcome back" summary of your progress. |
+| `/` | First visit / Welcome back | New: what the tool is for, a paste-link field, and 3 example applications (one per status) you can try, with a "Clear examples" button. Returning: a "Welcome back" summary of your progress and your weekly goal. |
 | `/add` | The form | Job link, Company, Role in one column. Status starts as Applied. |
 | `/applications` | The list | Every application, each with a status you can change. |
 
@@ -19,8 +19,10 @@ flowchart TD
     Start(["Open the app"]) --> Saved{"Anything saved<br/>on this device?"}
 
     %% 1. First visit
-    Saved -- No --> First["/ First visit<br/>'Track every job you apply to'<br/>Paste-link field + a sample application"]
-    First -- "Try the sample:<br/>change its status" --> List
+    Saved -- No --> First["/ First visit<br/>'Track every job you apply to'<br/>Paste-link field + 3 example applications"]
+    First -- "Try an example:<br/>change its status" --> List
+    List -- "Clear examples" --> ClearEx[("Remove examples<br/>from localStorage")]
+    ClearEx --> List
     First -- "Paste a link" --> Form
 
     %% 2. The form and its errors
@@ -41,14 +43,16 @@ flowchart TD
     Empty --> Form
 
     %% 4. Coming back
-    Saved -- Yes --> Welcome["/ Welcome back<br/>'8 applications · 2 interviewing · 1 offer'<br/>Last added: Stripe, 3 days ago"]
+    Saved -- Yes --> Welcome["/ Welcome back<br/>'8 applications · 2 interviewing · 1 offer'<br/>This week: 3 of 5 applications<br/>Last added: Stripe, 3 days ago"]
+    Welcome -- "Change weekly goal" --> Goal[("Save goal to localStorage")]
+    Goal --> Welcome
     Welcome --> List
     Welcome --> Form
 ```
 
 ## States and errors kept
 
-- **First visit:** a sample application and a paste-link prompt, never a blank list.
+- **First visit:** 3 clearly labelled example applications (Applied, Interviewing, Offer) and a paste-link prompt, never a blank list. "Clear examples" removes them; examples don't count toward the weekly goal.
 - **Empty state:** a filter with no matches explains itself and links to Add.
 - **Form errors** (placed next to the field, typed input kept):
   - "Enter the company name"
@@ -57,5 +61,6 @@ flowchart TD
   - "You already added this link"
 - **Status:** Applied → Interviewing → Offer / Rejected, saved on change.
 - **Coming back:** applications and statuses are remembered on this device, and the home page shows a welcome back summary.
+- **Weekly goal:** "3 of 5 applications this week" (week starts Monday, default goal 5, changeable on the home page). Saved locally.
 
 Considered and dropped (simplicity): a "followed up" button, notes, edit/delete, a 7-day "gone quiet" banner.

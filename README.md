@@ -15,8 +15,10 @@ flowchart TD
     Start(["Open the app"]) --> Saved{"Anything saved<br/>on this device?"}
 
     %% 1. First visit
-    Saved -- No --> First["/ First visit<br/>'Track every job you apply to'<br/>Paste-link field + a sample application"]
-    First -- "Try the sample:<br/>change its status" --> List
+    Saved -- No --> First["/ First visit<br/>'Track every job you apply to'<br/>Paste-link field + 3 example applications"]
+    First -- "Try an example:<br/>change its status" --> List
+    List -- "Clear examples" --> ClearEx[("Remove examples<br/>from localStorage")]
+    ClearEx --> List
     First -- "Paste a link" --> Form
 
     %% 2. The form and its errors
@@ -37,7 +39,9 @@ flowchart TD
     Empty --> Form
 
     %% 4. Coming back
-    Saved -- Yes --> Welcome["/ Welcome back<br/>'8 applications · 2 interviewing · 1 offer'<br/>Last added: Stripe, 3 days ago"]
+    Saved -- Yes --> Welcome["/ Welcome back<br/>'8 applications · 2 interviewing · 1 offer'<br/>This week: 3 of 5 applications<br/>Last added: Stripe, 3 days ago"]
+    Welcome -- "Change weekly goal" --> Goal[("Save goal to localStorage")]
+    Goal --> Welcome
     Welcome --> List
     Welcome --> Form
 ```
@@ -46,7 +50,23 @@ Full flow notes, states, and errors: [flows.md](flows.md)
 
 ## Onboarding research
 
-_Coming in step 3._
+Three subagents studied how similar tools welcome someone new (public pages, help centers, and reviews; no accounts created).
+
+| | Huntr | Teal | Simplify |
+|---|---|---|---|
+| **First screen** | "Less Hassle, More Interviews" + sign-up; no demo | Resume-first landing; "Try a demo" on tracker page | "Your AI Job Search Partner"; dashboard of matches, goals, streaks |
+| **What it asks for** | Account (reportedly LinkedIn + target job) | Account + goals survey (target title, timeline) | Account + resume/profile + job preferences |
+| **Time to first saved job** | ~4 steps; must pick a board and list first | ~4 steps; tracker **pre-filled with sample jobs** | ~4–6 steps; long profile setup first |
+| **Add-job form** | Company, title, board, list; pasted link fills nothing | Title, URL, company, location, description; pasted link fills nothing | Role, company, location, status; CSV import needs only company + title |
+| **Reasons to return** | Due/overdue activities | Weekly goals, follow-up dates | Streaks, weekly application goal, match emails |
+
+**Pattern:** all three put an account and setup before anything useful happens.
+
+**What I'm using:**
+- **Sample jobs (from Teal):** the first visit shows 3 labelled example applications, one per status, so the list is never empty and you learn by changing a status. A "Clear examples" button removes them.
+- **Minimal form (from Simplify/Huntr):** only link, company, and role; status starts at Applied. Nothing asked before the first save.
+- **Weekly goal (from Simplify/Teal):** "3 of 5 applications this week" in the welcome back summary, a reason to return without accounts or email.
+- **Avoiding:** sign-up walls, setup surveys, and choosing a board/list before saving.
 
 ## First-run check
 
