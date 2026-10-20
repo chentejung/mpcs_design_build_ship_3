@@ -3,11 +3,15 @@
 import { setStatus, type Application } from "@/lib/store";
 import { StatusSelect } from "./StatusSelect";
 
-export function ApplicationRow({ application }: { application: Application }) {
+export function ApplicationRow({ application, highlight = false }: { application: Application; highlight?: boolean }) {
   const { id, company, role, url, status, example } = application;
 
   return (
-    <li className="flex items-center justify-between gap-4 rounded-lg border border-line bg-card px-4 py-3">
+    <li
+      className={`flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3 ${
+        highlight ? "border-accent ring-1 ring-accent" : "border-line"
+      }`}
+    >
       <div className="min-w-0">
         {example && (
           <span className="mb-1 inline-block rounded-sm bg-paper px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-muted">

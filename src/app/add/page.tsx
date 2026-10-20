@@ -1,14 +1,17 @@
-import { ButtonLink } from "@/components/Button";
+import { Suspense } from "react";
+import { AddJobForm } from "./AddJobForm";
 
-// Placeholder: the add form is built in step 5.
 export default function AddPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="font-serif text-4xl font-semibold">Add a job</h1>
-      <p className="text-muted">The form arrives in the next step.</p>
-      <ButtonLink href="/" variant="secondary" className="self-start">
-        Back to home
-      </ButtonLink>
+    <div className="flex flex-col gap-8">
+      <header>
+        <h1 className="font-serif text-4xl font-semibold tracking-tight">Add a job</h1>
+        <p className="mt-2 text-muted">It starts as Applied. You can change the status any time.</p>
+      </header>
+      {/* useSearchParams (the pasted link) needs a Suspense boundary. */}
+      <Suspense>
+        <AddJobForm />
+      </Suspense>
     </div>
   );
 }

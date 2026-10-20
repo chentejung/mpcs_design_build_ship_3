@@ -11,3 +11,17 @@ export function validateLink(value: string): string | null {
   }
   return null;
 }
+
+export type JobForm = { url: string; company: string; role: string };
+export type JobFormErrors = Partial<Record<keyof JobForm, string>>;
+
+/** Validates the add-job form. `isDuplicate` checks whether the link is already saved. */
+export function validateJob(form: JobForm, isDuplicate: (url: string) => boolean): JobFormErrors {
+  const errors: JobFormErrors = {};
+  const linkError = validateLink(form.url);
+  if (linkError) errors.url = linkError;
+  else if (isDuplicate(form.url)) errors.url = "You already added this link. Find it in Applications.";
+  if (!form.company.trim()) errors.company = "Enter the company name";
+  if (!form.role.trim()) errors.role = "Enter the role";
+  return errors;
+}

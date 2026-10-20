@@ -125,3 +125,33 @@ export function countThisWeek(applications: Application[], now = new Date()) {
   monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
   return applications.filter((a) => !a.example && new Date(a.createdAt) >= monday).length;
 }
+
+/** Compare links loosely: ignore case of the host, trailing slashes, and #fragments. */
+export function normalizeLink(link: string) {
+  try {
+    const url = new URL(link.trim());
+    url.hash = "";
+    return `${url.hostname.toLowerCase()}${url.pathname.replace(/\/+$/, "")}${url.search}`;
+  } catch {
+    return link.trim().toLowerCase();
+  }
+}
+
+export function hasLink(link: string) {
+  const target = normalizeLink(link);
+  return read().applications.some((a) => !a.example && normalizeLink(a.url) === target);
+}
+
+export function addApplication(input: { url: string; company: string; role: string }): Application {
+  const state = read();
+  const application: Application = {
+    id: crypto.randomUUID(),
+    url: input.url.trim(),
+    company: input.company.trim(),
+    role: input.role.trim(),
+    status: "Applied",
+    createdAt: new Date().toISOString(),
+  };
+  write({ ...state, applications: [application, ...state.applications] });
+  return application;
+}
