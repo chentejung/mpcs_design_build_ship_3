@@ -17,7 +17,7 @@ export function StatusSelect({
       aria-label={label}
       value={value}
       onChange={(e) => onChange(e.target.value as Status)}
-      className="rounded-md border border-line bg-card px-2.5 py-2 text-sm font-medium text-ink"
+      className="rounded-md border border-field bg-card px-2.5 py-2 text-sm font-medium text-ink"
     >
       {STATUSES.map((s) => (
         <option key={s} value={s}>

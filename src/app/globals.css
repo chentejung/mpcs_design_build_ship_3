@@ -6,7 +6,8 @@
   --color-card: #fffdf8;
   --color-ink: #1f1b16;
   --color-muted: #5c5348;
-  --color-line: #e3d9c6;
+  --color-line: #e3d9c6; /* decorative dividers and card edges */
+  --color-field: #8c7f6c; /* form control borders: 3.6:1+ on paper and card */
   --color-accent: #9c3d10;
   --color-accent-ink: #7a2f0b;
   --color-error: #a1251b;

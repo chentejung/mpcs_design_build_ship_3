@@ -13,11 +13,14 @@ export function WeeklyGoal({ done, goal }: { done: number; goal: number }) {
   const [error, setError] = useState<string | null>(null);
   const met = done >= goal;
 
-  function onSubmit(e: FormEvent) {
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const problem = validateGoal(value);
     setError(problem);
-    if (problem) return;
+    if (problem) {
+      e.currentTarget.querySelector("input")?.focus();
+      return;
+    }
     setWeeklyGoal(Number(value.trim()));
     setEditing(false);
   }

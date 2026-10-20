@@ -57,7 +57,7 @@ export function ApplicationList() {
                 aria-pressed={active}
                 onClick={() => setFilter(f)}
                 className={`rounded-full border px-3.5 py-1.5 text-sm ${
-                  active ? "border-ink bg-ink text-paper" : "border-line bg-card text-ink hover:border-ink"
+                  active ? "border-ink bg-ink text-paper" : "border-field bg-card text-ink hover:border-ink"
                 }`}
               >
                 {f} <span className={active ? "text-paper" : "text-muted"}>{count}</span>

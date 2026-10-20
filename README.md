@@ -68,6 +68,15 @@ Three subagents studied how similar tools welcome someone new (public pages, hel
 - **Weekly goal (from Simplify/Teal):** "3 of 5 applications this week" in the welcome back summary, a reason to return without accounts or email.
 - **Avoiding:** sign-up walls, setup surveys, and choosing a board/list before saving.
 
+## Accessibility
+
+Checked with the agent:
+
+- **Contrast (WCAG AA):** body text 15.9:1, hints and secondary text 7.0:1, error text 7.0:1, current nav link 6.3:1, primary button 15.9:1. Input, select, and filter borders were 1.4:1 at first; darkened to `#8c7f6c` (3.6:1+) to meet the 3:1 rule for form controls.
+- **Labels:** every field has a real `<label>`; hints and errors are linked with `aria-describedby`, and invalid fields get `aria-invalid`. Status dropdowns are named per job ("Status for Stripe, Product Designer").
+- **Keyboard:** skip link, visible focus ring everywhere, the full add flow works with Tab and Enter, and on an error focus moves to the first field that needs attention.
+- **Automated audit:** axe-core (WCAG 2.1 A/AA + best practices) on the first visit, form errors, list, empty filter, welcome back, and goal editor: no violations.
+
 ## First-run check
 
 _Agent usability feedback goes here after deploy._
