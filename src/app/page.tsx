@@ -1,69 +1,76 @@
-import Image from "next/image";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState, type FormEvent } from "react";
+import { ApplicationRow } from "@/components/ApplicationRow";
+import { Button } from "@/components/Button";
+import { Field } from "@/components/Field";
+import { Input } from "@/components/Input";
+import { clearExamples, countThisWeek, useTracker } from "@/lib/store";
+import { validateLink } from "@/lib/validate";
 
 export default function Home() {
+  const tracker = useTracker();
+  const router = useRouter();
+  const [link, setLink] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    const problem = validateLink(link);
+    setError(problem);
+    if (!problem) router.push(`/add?url=${encodeURIComponent(link.trim())}`);
+  }
+
+  const examples = tracker?.applications.filter((a) => a.example) ?? [];
+  const thisWeek = tracker ? countThisWeek(tracker.applications) : 0;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex flex-col gap-10">
+      <section>
+        <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+          Track every job you apply to.
+        </h1>
+        <p className="mt-3 text-lg text-muted">Saved on this device. No sign-up.</p>
+      </section>
+
+      <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3">
+        <Field label="Job link" hint="Paste the link to a job posting to add it." error={error}>
+          <Input
+            type="url"
+            inputMode="url"
+            autoComplete="off"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+          />
+        </Field>
+        <Button type="submit" className="self-start">
+          Add this job
+        </Button>
+      </form>
+
+      {tracker && (
+        <p className="border-y border-line py-4 font-serif text-lg">
+          This week: <strong>{thisWeek}</strong> of {tracker.weeklyGoal} applications
+        </p>
+      )}
+
+      {examples.length > 0 && (
+        <section aria-labelledby="examples-heading" className="flex flex-col gap-3">
+          <h2 id="examples-heading" className="font-serif text-2xl font-semibold">
+            Here&rsquo;s how it looks
+          </h2>
+          <p className="text-muted">Try changing a status. Your choice is saved right away.</p>
+          <ul className="flex flex-col gap-2">
+            {examples.map((a) => (
+              <ApplicationRow key={a.id} application={a} />
+            ))}
+          </ul>
+          <Button variant="quiet" className="self-end" onClick={clearExamples}>
+            Clear examples
+          </Button>
+        </section>
+      )}
     </div>
   );
 }
