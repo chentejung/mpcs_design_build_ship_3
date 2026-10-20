@@ -4,6 +4,7 @@ import { ApplicationRow } from "@/components/ApplicationRow";
 import { Button, ButtonLink } from "@/components/Button";
 import { PasteLinkForm } from "@/components/PasteLinkForm";
 import { WeeklyGoal } from "@/components/WeeklyGoal";
+import { plural, timeAgo } from "@/lib/format";
 import { clearExamples, countThisWeek, useTracker, type Application, type TrackerState } from "@/lib/store";
 
 export default function Home() {
@@ -84,20 +85,9 @@ function WelcomeBack({ tracker, real }: { tracker: TrackerState; real: Applicati
           ))}
         </ul>
         <ButtonLink href="/applications" variant="secondary" className="self-start">
-          See all {real.length} applications
+          {real.length === 1 ? "See it in Applications" : `See all ${real.length} applications`}
         </ButtonLink>
       </section>
     </div>
   );
-}
-
-function plural(n: number, word: string) {
-  return `${n} ${word}${n === 1 ? "" : "s"}`;
-}
-
-function timeAgo(iso: string) {
-  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
-  if (days <= 0) return "today";
-  if (days === 1) return "yesterday";
-  return `${days} days ago`;
 }

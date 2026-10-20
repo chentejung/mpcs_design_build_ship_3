@@ -34,6 +34,7 @@ export function WeeklyGoal({ done, goal }: { done: number; goal: number }) {
         {!editing && (
           <Button
             variant="quiet"
+            className="shrink-0 whitespace-nowrap"
             onClick={() => {
               setValue(String(goal));
               setEditing(true);

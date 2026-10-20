@@ -32,13 +32,15 @@ flowchart TD
     Submit -- "Link malformed" --> ErrLink["'Paste a full link starting with https://'"]
     Submit -- "Link already added" --> ErrDup["'You already added this link'"]
     ErrCompany & ErrRole & ErrLink & ErrDup -- "What you typed is kept" --> Form
-    Submit -- Yes --> Save[("Save to localStorage<br/>status = Applied")]
+    Submit -- Yes --> Save[("Save to localStorage<br/>status = Applied<br/>examples removed")]
     Save --> List
 
     %% 3. It's on my list
     List["/applications List<br/>'Added Stripe — Product Designer'"] --> Status["Change status<br/>Applied → Interviewing → Offer / Rejected"]
     Status --> SaveStatus[("Save to localStorage")]
     SaveStatus --> List
+    List -- "Delete" --> Undo["'Deleted Stripe' + Undo"]
+    Undo --> List
     List -- "Filter has no matches" --> Empty["Empty state<br/>'No applications here yet' + Add link"]
     Empty --> Form
 
@@ -52,7 +54,7 @@ flowchart TD
 
 ## States and errors kept
 
-- **First visit:** 3 clearly labelled example applications (Applied, Interviewing, Offer) and a paste-link prompt, never a blank list. "Clear examples" removes them; examples don't count toward the weekly goal.
+- **First visit:** 3 clearly labelled example applications (Applied, Interviewing, Offer) and a paste-link prompt, never a blank list. "Clear examples" removes them, and they're removed automatically when you add your first real job. Examples don't count toward the weekly goal.
 - **Empty state:** a filter with no matches explains itself and links to Add.
 - **Form errors** (placed next to the field, typed input kept):
   - "Enter the company name"
@@ -60,7 +62,9 @@ flowchart TD
   - "Paste a full link starting with https://"
   - "You already added this link"
 - **Status:** Applied → Interviewing → Offer / Rejected, saved on change.
+- **Delete** (added after the first-run check): removes a job, with Undo for 8 seconds. Each card shows when it was added.
+- **Links:** bare addresses like `stripe.com/jobs/1` get `https://` added; duplicates are caught as soon as the link is pasted.
 - **Coming back:** applications and statuses are remembered on this device, and the home page shows a welcome back summary.
 - **Weekly goal:** "3 of 5 applications this week" (week starts Monday, default goal 5, changeable on the home page). Saved locally.
 
-Considered and dropped (simplicity): a "followed up" button, notes, edit/delete, a 7-day "gone quiet" banner.
+Considered and dropped (simplicity): a "followed up" button, notes, editing, a 7-day "gone quiet" banner.

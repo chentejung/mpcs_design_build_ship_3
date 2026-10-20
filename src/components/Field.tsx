@@ -18,7 +18,7 @@ export function Field({
 }: {
   label: ReactNode;
   hint?: ReactNode;
-  error?: string | null;
+  error?: ReactNode;
   children: ReactElement<ControlProps>;
 }) {
   const id = useId();

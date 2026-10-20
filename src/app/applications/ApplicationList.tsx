@@ -15,11 +15,17 @@ export function ApplicationList() {
   const searchParams = useSearchParams();
   // Read the "just added" id once, then drop it from the URL so a refresh doesn't repeat the banner.
   const [addedId] = useState(() => searchParams.get("added"));
+  // "show" comes from the duplicate-link error: point at the job that's already saved.
+  const [showId] = useState(() => searchParams.get("show"));
   const [filter, setFilter] = useState<Filter>("All");
 
   useEffect(() => {
-    if (searchParams.has("added")) window.history.replaceState(null, "", "/applications");
+    if (searchParams.has("added") || searchParams.has("show")) window.history.replaceState(null, "", "/applications");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (showId) document.getElementById(`application-${showId}`)?.scrollIntoView({ block: "center" });
+  }, [showId]);
 
   if (!tracker) return null; // Not hydrated yet; avoids flashing an empty state.
 
@@ -83,7 +89,7 @@ export function ApplicationList() {
       ) : (
         <ul className="flex flex-col gap-2">
           {shown.map((a) => (
-            <ApplicationRow key={a.id} application={a} highlight={a.id === addedId} />
+            <ApplicationRow key={a.id} application={a} highlight={a.id === addedId || a.id === showId} />
           ))}
         </ul>
       )}

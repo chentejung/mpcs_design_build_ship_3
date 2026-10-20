@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Nav } from "@/components/Nav";
+import { UndoBar } from "@/components/UndoBar";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main" className="mx-auto w-full max-w-2xl flex-1 px-5 py-10">
           {children}
         </main>
+        <UndoBar />
       </body>
     </html>
   );

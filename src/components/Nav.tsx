@@ -14,11 +14,11 @@ export function Nav() {
 
   return (
     <header className="border-b border-line bg-paper">
-      <nav aria-label="Main" className="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
-        <Link href="/" className="font-serif text-xl font-semibold tracking-tight">
+      <nav aria-label="Main" className="mx-auto flex max-w-2xl items-center justify-between gap-2 px-5 py-4">
+        <Link href="/" className="whitespace-nowrap font-serif text-lg font-semibold tracking-tight sm:text-xl">
           The Job Ledger
         </Link>
-        <ul className="flex gap-1 text-sm">
+        <ul className="flex text-sm sm:gap-1">
           {LINKS.map(({ href, label }) => {
             const current = pathname === href;
             return (
@@ -26,7 +26,7 @@ export function Nav() {
                 <Link
                   href={href}
                   aria-current={current ? "page" : undefined}
-                  className={`rounded px-3 py-2 underline-offset-4 hover:underline ${
+                  className={`whitespace-nowrap rounded px-2 py-2 underline-offset-4 sm:px-3 hover:underline ${
                     current ? "font-semibold text-accent underline decoration-2" : "text-muted"
                   }`}
                 >

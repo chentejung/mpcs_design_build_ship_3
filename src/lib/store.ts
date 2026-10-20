@@ -137,9 +137,14 @@ export function normalizeLink(link: string) {
   }
 }
 
-export function hasLink(link: string) {
+/** The saved (non-example) application with this link, if any. */
+export function findByLink(link: string) {
   const target = normalizeLink(link);
-  return read().applications.some((a) => !a.example && normalizeLink(a.url) === target);
+  return read().applications.find((a) => !a.example && normalizeLink(a.url) === target);
+}
+
+export function hasLink(link: string) {
+  return !!findByLink(link);
 }
 
 export function addApplication(input: { url: string; company: string; role: string }): Application {
@@ -152,10 +157,44 @@ export function addApplication(input: { url: string; company: string; role: stri
     status: "Applied",
     createdAt: new Date().toISOString(),
   };
-  write({ ...state, applications: [application, ...state.applications] });
+  // Examples are only a demo: they go away once you add your own first job.
+  write({ ...state, applications: [application, ...state.applications.filter((a) => !a.example)] });
   return application;
 }
 
 export function setWeeklyGoal(goal: number) {
   write({ ...read(), weeklyGoal: goal });
+}
+
+// The most recently deleted application, kept in memory so it can be undone.
+let lastDeleted: { application: Application; index: number } | null = null;
+
+export function deleteApplication(id: string) {
+  const state = read();
+  const index = state.applications.findIndex((a) => a.id === id);
+  if (index === -1) return;
+  lastDeleted = { application: state.applications[index], index };
+  write({ ...state, applications: state.applications.filter((a) => a.id !== id) });
+}
+
+export function undoDelete() {
+  if (!lastDeleted) return;
+  const { application, index } = lastDeleted;
+  lastDeleted = null;
+  const applications = [...read().applications];
+  applications.splice(Math.min(index, applications.length), 0, application);
+  write({ ...read(), applications });
+}
+
+export function dismissUndo() {
+  lastDeleted = null;
+  listeners.forEach((listener) => listener());
+}
+
+export function useLastDeleted(): Application | null {
+  return useSyncExternalStore(
+    subscribe,
+    () => lastDeleted?.application ?? null,
+    () => null,
+  );
 }

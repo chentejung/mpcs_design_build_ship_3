@@ -6,7 +6,8 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Field } from "@/components/Field";
 import { Input } from "@/components/Input";
 import { addApplication, hasLink } from "@/lib/store";
-import { validateJob, type JobForm, type JobFormErrors } from "@/lib/validate";
+import { LinkError } from "@/components/LinkError";
+import { validateJob, withScheme, type JobForm, type JobFormErrors } from "@/lib/validate";
 
 const FIELD_ORDER: (keyof JobForm)[] = ["url", "company", "role"];
 
@@ -34,13 +35,13 @@ export function AddJobForm() {
       return;
     }
 
-    const saved = addApplication(form);
+    const saved = addApplication({ ...form, url: withScheme(form.url) });
     router.push(`/applications?added=${saved.id}`);
   }
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
-      <Field label="Job link" error={errors.url}>
+      <Field label="Job link" error={errors.url && <LinkError error={errors.url} link={form.url} />}>
         <Input
           name="url"
           type="url"

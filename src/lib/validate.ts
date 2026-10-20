@@ -1,6 +1,13 @@
+/** Adds https:// when someone pastes a bare address like "stripe.com/jobs/123". */
+export function withScheme(value: string) {
+  const link = value.trim();
+  if (!link || /^[a-z][a-z0-9+.-]*:\/\//i.test(link)) return link;
+  return /^[^\s/]+\.[^\s/]+/.test(link) ? `https://${link}` : link;
+}
+
 /** Returns an error message for a job link, or null if it's valid. */
 export function validateLink(value: string): string | null {
-  const link = value.trim();
+  const link = withScheme(value);
   if (!link) return "Paste a job link";
   try {
     const url = new URL(link);
@@ -12,6 +19,8 @@ export function validateLink(value: string): string | null {
   return null;
 }
 
+export const DUPLICATE_LINK = "You already added this link.";
+
 export type JobForm = { url: string; company: string; role: string };
 export type JobFormErrors = Partial<Record<keyof JobForm, string>>;
 
@@ -20,7 +29,7 @@ export function validateJob(form: JobForm, isDuplicate: (url: string) => boolean
   const errors: JobFormErrors = {};
   const linkError = validateLink(form.url);
   if (linkError) errors.url = linkError;
-  else if (isDuplicate(form.url)) errors.url = "You already added this link. Find it in Applications.";
+  else if (isDuplicate(withScheme(form.url))) errors.url = DUPLICATE_LINK;
   if (!form.company.trim()) errors.company = "Enter the company name";
   if (!form.role.trim()) errors.role = "Enter the role";
   return errors;

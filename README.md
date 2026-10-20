@@ -4,7 +4,7 @@ MPCS 51238 Design, Build, Ship · Assignment 3: Patterns & Flows
 
 A small tool for anyone job hunting. Paste a job link, add the company and role, and keep track of where each application stands. Everything is saved in your browser (localStorage), so it's still there when you come back.
 
-**Live:** _coming soon (Vercel)_
+**Live:** https://mpcs-design-build-ship-3.vercel.app/
 
 ## Flows
 
@@ -28,13 +28,15 @@ flowchart TD
     Submit -- "Link malformed" --> ErrLink["'Paste a full link starting with https://'"]
     Submit -- "Link already added" --> ErrDup["'You already added this link'"]
     ErrCompany & ErrRole & ErrLink & ErrDup -- "What you typed is kept" --> Form
-    Submit -- Yes --> Save[("Save to localStorage<br/>status = Applied")]
+    Submit -- Yes --> Save[("Save to localStorage<br/>status = Applied<br/>examples removed")]
     Save --> List
 
     %% 3. It's on my list
     List["/applications List<br/>'Added Stripe — Product Designer'"] --> Status["Change status<br/>Applied → Interviewing → Offer / Rejected"]
     Status --> SaveStatus[("Save to localStorage")]
     SaveStatus --> List
+    List -- "Delete" --> Undo["'Deleted Stripe' + Undo"]
+    Undo --> List
     List -- "Filter has no matches" --> Empty["Empty state<br/>'No applications here yet' + Add link"]
     Empty --> Form
 
@@ -79,7 +81,25 @@ Checked with the agent:
 
 ## First-run check
 
-_Agent usability feedback goes here after deploy._
+After deploying, a fresh agent (no access to the code or this conversation) used the live site in headless Chrome as a brand-new job hunter. Goal: *"Add three jobs you applied to this week, then come back later and check on them."* It made natural mistakes on purpose, tried the keyboard, a phone viewport, and returned with the same saved data.
+
+**What worked:** the purpose and first action were clear within seconds, and "No sign-up" built trust. Errors were specific, kept what was typed, and moved the cursor to the field to fix. Pasting a link and landing on a form with it prefilled felt fast. Examples were clearly labelled; filter chips and empty states helped. Data persisted on return and the keyboard-only add worked.
+
+**What it found, and what I did:**
+
+| # | Issue | Severity | Change |
+|---|---|---|---|
+| 1 | No way to edit or delete your own jobs; a mistaken add stays forever | High | **Fixed:** Delete on each card, with an Undo bar for 8 seconds. (Edit left out for simplicity.) |
+| 2 | Cards don't show when you applied; returning tells you nothing new | Medium | **Fixed:** each card shows "Added 6 days ago". (No follow-up nudges: out of scope.) |
+| 3 | Duplicate link only caught after filling the whole form; "Find it in Applications" wasn't a link | Medium | **Fixed:** checked as soon as the link is pasted, with a link to the saved job, which is highlighted |
+| 4 | Applications said "All 4" while Home said "1 application" (examples counted) | Medium | **Fixed:** examples are removed automatically when you add your first real job |
+| 5 | `stripe.com/jobs` rejected instead of fixed | Low | **Fixed:** `https://` is added automatically to bare addresses |
+| 6 | Faint focus ring on dark buttons | Low | **Fixed:** 3px outline with a 3px gap |
+| 7 | Filter resets on reload or Back | Low | Not changed (kept simple) |
+| 8 | "+ Add" wraps on phones | Low | **Fixed:** tighter nav that never wraps |
+| 9 | Plain 404 page | Low | Not changed |
+
+**What I learned:** the flows held up, but the agent spotted gaps I had cut for simplicity (deleting) that turn out to be essential, and inconsistencies (example counts) I'd stopped noticing. Testing as a stranger caught things my own scripted tests didn't.
 
 ## Run locally
 
