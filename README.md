@@ -10,46 +10,60 @@ A small tool for anyone job hunting. Paste a job link, add the company and role,
 
 **Main task:** I paste a job link and add the company and role → it's on my applications list as "Applied" → whenever I come back, all my applications are still there, with their latest status.
 
+**1. First visit: two-step onboarding**
+
 ```mermaid
 flowchart TD
-    Start(["Open the app"]) --> Saved{"Anything saved<br/>on this device?"}
+    Open(["Open the app"]) --> Saved{"Anything saved?"}
+    Saved -- No --> Step1["Step 1: Add your<br/>first application<br/>(link, company, role)"]
+    Saved -- Yes --> Welcome["Welcome back<br/>(see flow 4)"]
+    Step1 -- "Empty or wrong" --> Err1["Error next to the field<br/>typed input kept"]
+    Err1 --> Step1
+    Step1 -- "All valid" --> Fold["Step 1 folds up"]
+    Fold --> Step2["Step 2: Set your<br/>weekly goal"]
+    Step2 -- "Not a whole number" --> Err2["Enter a whole<br/>number, 1 or more"]
+    Err2 --> Step2
+    Step2 -- "Both done" --> Add["Add button appears"]
+    Add --> Save1[("Save job + goal")]
+    Save1 --> List["Applications list"]
+```
 
-    %% 1. First visit: onboarding in two steps
-    Saved -- No --> Step1["/ Step 1: Add your first application<br/>Job link · Company · Role"]
-    Step1 -- "Leave the step with<br/>a field empty or wrong" --> Step1Err["Errors next to the fields<br/>'Enter the company name' ·<br/>'Paste a full link starting with https://'"]
-    Step1Err -- "What you typed is kept" --> Step1
-    Step1 -- "All three valid:<br/>step folds up" --> Step2["Step 2: Set your weekly application goal"]
-    Step2 -- "Empty or not a whole number" --> GoalErr["'Enter a whole number, 1 or more'"]
-    GoalErr --> Step2
-    Step2 -- "Both steps done" --> AddBtn["'You're all set.' + Add button"]
-    AddBtn --> SaveFirst[("Save first job + goal<br/>to localStorage")]
-    SaveFirst --> List
+**2. Add a job (/add)**
 
-    %% 2. The form and its errors
-    Form["/add Form<br/>Job link · Company · Role"] --> Submit{"Valid?"}
-    Submit -- "Company empty" --> ErrCompany["'Enter the company name'"]
-    Submit -- "Role empty" --> ErrRole["'Enter the role'"]
-    Submit -- "Link malformed" --> ErrLink["'Paste a full link starting with https://'"]
-    Submit -- "Link already added" --> ErrDup["'You already added this link'"]
-    ErrCompany & ErrRole & ErrLink & ErrDup -- "What you typed is kept" --> Form
-    Submit -- Yes --> Save[("Save to localStorage<br/>status = Applied")]
-    Save --> List
+```mermaid
+flowchart TD
+    Form["Add form<br/>(link, company, role)"] --> Valid{"Valid?"}
+    Valid -- "Company empty" --> E1["Enter the<br/>company name"]
+    Valid -- "Role empty" --> E2["Enter the role"]
+    Valid -- "Bad link" --> E3["Paste a full link<br/>starting with https://"]
+    Valid -- "Duplicate" --> E4["You already<br/>added this link"]
+    E1 & E2 & E3 & E4 -- "Typed input kept" --> Form
+    Valid -- Yes --> Save[("Save as Applied")]
+    Save --> List["Applications list<br/>Added Stripe"]
+```
 
-    %% 3. It's on my list
-    List["/applications List<br/>'Added Stripe — Product Designer'"] --> Status["Change status<br/>Applied → Interviewing → Offer / Rejected"]
-    Status --> SaveStatus[("Save to localStorage")]
-    SaveStatus --> List
-    List -- "Delete" --> Undo["'Deleted Stripe' + Undo"]
+**3. The list (/applications)**
+
+```mermaid
+flowchart TD
+    List["Applications list"] --> Status["Change status<br/>Applied, Interviewing,<br/>Offer, Rejected"]
+    Status --> Saved[("Save")]
+    Saved --> List
+    List -- "Delete" --> Undo["Deleted Stripe<br/>+ Undo (8 sec)"]
     Undo --> List
-    List -- "Filter has no matches" --> Empty["Empty state<br/>'No applications here yet' + Add link"]
-    Empty --> Form
+    List -- "Filter has no matches" --> Empty["Empty state<br/>Show all or Add"]
+    Empty --> Form["Add form"]
+```
 
-    %% 4. Coming back
-    Saved -- Yes --> Welcome["/ Welcome back<br/>'8 applications · 2 interviewing · 1 offer'<br/>Last added: Stripe, 3 days ago<br/>+ Add an application<br/>This week: 3 of 5 applications"]
-    Welcome -- "Change weekly goal" --> Goal[("Save goal to localStorage")]
-    Goal --> Welcome
-    Welcome --> List
-    Welcome -- "+ Add an application" --> Form
+**4. Coming back (/)**
+
+```mermaid
+flowchart TD
+    Welcome["Welcome back<br/>8 applications,<br/>2 interviewing, 1 offer<br/>Last added: Stripe"] --> Goal["This week:<br/>3 of 5 applications"]
+    Goal -- "Change goal" --> SaveGoal[("Save goal")]
+    SaveGoal --> Welcome
+    Welcome -- "+ Add an application" --> Form["Add form"]
+    Welcome -- "See all" --> List["Applications list"]
 ```
 
 Full flow notes, states, and errors: [flows.md](flows.md)
@@ -82,7 +96,7 @@ Checked with the agent:
 - **Contrast (WCAG AA):** body text 15.9:1, hints and secondary text 7.0:1, error text 7.0:1, current nav link 6.3:1, primary button 15.9:1, the filled "+ Add" nav button 6.3:1, and the terracotta numbers in the welcome back summary 6.6:1. Input, select, and filter borders were 1.4:1 at first; darkened to `#8c7f6c` (3.6:1+) to meet the 3:1 rule for form controls.
 - **Labels:** every field has a real `<label>`; hints and errors are linked with `aria-describedby`, and invalid fields get `aria-invalid`. Status dropdowns are named per job ("Status for Stripe, Product Designer").
 - **Keyboard:** skip link, visible focus ring everywhere, the full add flow works with Tab and Enter, and on an error focus moves to the first field that needs attention.
-- **Onboarding:** each step is a `<fieldset>` whose legend is read as "Step 1: Add your first application"; a done step is announced as "(done)", and the "You're all set" + Add area is a polite live region. Enter moves through the steps even before the Add button appears.
+- **Onboarding:** each step is a `<fieldset>` whose legend is read as "Step 1: Add your first application"; a done step is announced as "(done)", and the "Both steps done" + Add area is a polite live region. Enter moves through the steps even before the Add button appears.
 - **Automated audit:** axe-core (WCAG 2.1 A/AA + best practices) on onboarding (empty, with errors, ready), the add form, list, empty filter, welcome back, and goal editor: no violations.
 
 ## First-run check
