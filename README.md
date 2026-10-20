@@ -51,6 +51,9 @@ flowchart TD
     Undo --> List
     List -- "Filter has no matches" --> Empty["Empty state<br/>Show all or Add"]
     Empty --> Form["Add form"]
+    List -- "Search by company" --> Search["Only matching<br/>companies shown"]
+    Search -- "No match" --> NoMatch["No companies match<br/>+ Clear search"]
+    NoMatch --> List
 ```
 
 **4. Coming back (/)**
@@ -95,7 +98,8 @@ Checked with the agent:
 - **Labels:** every field has a real `<label>`; hints and errors are linked with `aria-describedby`, and invalid fields get `aria-invalid`. Status dropdowns are named per job ("Status for Stripe, Product Designer").
 - **Keyboard:** skip link, visible focus ring everywhere, the full add flow works with Tab and Enter, and on an error focus moves to the first field that needs attention.
 - **Onboarding:** each step is a `<fieldset>` whose legend is read as "Step 1: Add your first application"; a done step is announced as "(done)", and the "Both steps done" + Add area is a polite live region. Enter moves through the steps even before the Add button appears.
-- **Automated audit:** axe-core (WCAG 2.1 A/AA + best practices) on onboarding (empty, with errors, ready), the add form, list, empty filter, welcome back, and goal editor: no violations.
+- **Search:** the search box has a real label ("Search by company"), and while searching a hidden status message announces the count ("2 applications shown") so screen reader users hear the list change.
+- **Automated audit:** axe-core (WCAG 2.1 A/AA + best practices) on onboarding (empty, with errors, ready), the add form, list, empty filter, welcome back, goal editor, and the list while searching and with no search matches: no violations.
 
 ## First-run check
 
@@ -144,6 +148,11 @@ Same setup with a new fresh agent and a new goal: *"Get set up, add three jobs y
 
 - **Onboarding rebuilt:** example jobs removed. The first visit is now two numbered steps, *Add your first application* (folds up automatically once the link, company, and role are valid) and *Set your weekly application goal* (any whole number, no upper limit), followed by an **Add** button that appears when both are done.
 - **Welcome back:** the paste-link field is gone. Instead there's a prominent **+ Add an application** button, and "+ Add" in the navigation is now a filled terracotta button on every page. The summary ("1 application · 0 interviewing · 0 offers", "Last added: DT42 AI, today") is larger, in ink, with the numbers and company in terracotta, on a card with an accent edge.
+
+## Changes after round 2
+
+- **Search by company** on the Applications page. It matches part of the name, works with the status filter, has its own "no match" state with **Clear search**, and resets when you leave the page.
+- **Phone nav fix:** on a 375px-wide screen the filled "+ Add" button stuck out 4px past the edge; the nav links are a little tighter on small screens now.
 
 ## Run locally
 

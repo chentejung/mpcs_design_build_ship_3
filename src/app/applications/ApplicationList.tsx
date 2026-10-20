@@ -5,6 +5,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ApplicationRow } from "@/components/ApplicationRow";
 import { Button, ButtonLink } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
+import { Field } from "@/components/Field";
+import { Input } from "@/components/Input";
+import { plural } from "@/lib/format";
 import { STATUSES, useTracker, type Status } from "@/lib/store";
 
 type Filter = "All" | Status;
@@ -19,6 +22,7 @@ export function ApplicationList() {
   const [addedId, setAddedId] = useState(() => searchParams.get("added"));
   const [showId, setShowId] = useState(() => searchParams.get("show"));
   const [filter, setFilter] = useState<Filter>("All");
+  const [query, setQuery] = useState("");
 
   // Next.js keeps this page alive between visits, so pick up new params on every arrival.
   const addedParam = searchParams.get("added");
@@ -30,11 +34,13 @@ export function ApplicationList() {
     if (addedParam || showParam) window.history.replaceState(null, "", "/applications");
   }, [addedParam, showParam]);
 
-  // Clear the one-time banner and highlight when the page is hidden, so they don't reappear stale.
+  // Clear the one-time banner, highlight, and search when the page is hidden, so they don't reappear stale
+  // (a leftover search could hide the job you just added).
   useLayoutEffect(
     () => () => {
       setAddedId(null);
       setShowId(null);
+      setQuery("");
     },
     [],
   );
@@ -53,7 +59,9 @@ export function ApplicationList() {
 
   const all = tracker.applications;
   const added = addedId ? all.find((a) => a.id === addedId) : undefined;
-  const shown = filter === "All" ? all : all.filter((a) => a.status === filter);
+  const q = query.trim().toLowerCase();
+  const matching = q ? all.filter((a) => a.company.toLowerCase().includes(q)) : all;
+  const shown = filter === "All" ? matching : matching.filter((a) => a.status === filter);
 
   if (all.length === 0) {
     return (
@@ -71,11 +79,19 @@ export function ApplicationList() {
         {added ? `Added ${added.company} — ${added.role}` : ""}
       </p>
 
+      <Field label="Search by company">
+        <Input type="search" autoComplete="off" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </Field>
+      {/* Announce the result count while searching, so screen reader users hear the list change. */}
+      <p role="status" className="sr-only">
+        {q ? `${plural(shown.length, "application")} shown` : ""}
+      </p>
+
       <fieldset>
         <legend className="sr-only">Show applications by status</legend>
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => {
-            const count = f === "All" ? all.length : all.filter((a) => a.status === f).length;
+            const count = f === "All" ? matching.length : matching.filter((a) => a.status === f).length;
             const active = filter === f;
             return (
               <button
@@ -94,7 +110,20 @@ export function ApplicationList() {
         </div>
       </fieldset>
 
-      {shown.length === 0 ? (
+      {shown.length === 0 && q ? (
+        <EmptyState
+          title={`No companies match “${query.trim()}”${filter === "All" ? "" : ` in ${filter}`}`}
+          body="Check the spelling, or clear the search to see everything."
+          action={
+            <div className="flex gap-3">
+              <Button variant="secondary" onClick={() => setQuery("")}>
+                Clear search
+              </Button>
+              <ButtonLink href="/add">Add a job</ButtonLink>
+            </div>
+          }
+        />
+      ) : shown.length === 0 ? (
         <EmptyState
           title={`No applications marked ${filter}`}
           body="Change a status from the All view, or add a new job."

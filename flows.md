@@ -8,7 +8,7 @@
 |---|---|---|
 | `/` | First visit / Welcome back | New: two short steps. (1) Add your first application: job link, company, role; it folds up once all three are valid. (2) Set your weekly application goal. When both are done, an **Add** button finishes onboarding. Returning: a "Welcome back" summary of your progress, a prominent **+ Add an application** button, your weekly goal, and your most recent jobs. |
 | `/add` | The form | Job link, Company, Role in one column. Status starts as Applied. |
-| `/applications` | The list | Every application, each with a status you can change. |
+| `/applications` | The list | Every application, each with a status you can change. Search by company name and filter by status. |
 
 Shared navigation on every page: **Home · Applications · + Add** (the Add link is a filled button so it's always easy to find).
 
@@ -55,6 +55,9 @@ flowchart TD
     Undo --> List
     List -- "Filter has no matches" --> Empty["Empty state<br/>Show all or Add"]
     Empty --> Form["Add form"]
+    List -- "Search by company" --> Search["Only matching<br/>companies shown"]
+    Search -- "No match" --> NoMatch["No companies match<br/>+ Clear search"]
+    NoMatch --> List
 ```
 
 **4. Coming back (/)**
@@ -75,6 +78,7 @@ flowchart TD
   2. **Set your weekly application goal:** any whole number, 1 or more (no upper limit).
   When both are done, "Both steps done. Press Add to save." and an **Add** button appear; Add saves both and opens your list. Enter moves through the steps, so it all works by keyboard.
 - **Empty state:** a filter with no matches explains itself and links to Add.
+- **Search by company** (added after round 2): matches any part of the name, ignoring case ("stri" finds Stripe), and works together with the status filter; the filter counts follow the search. No match shows "No companies match “…”" with **Clear search** and Add. The search clears when you leave the page, so a leftover search never hides a job you just added.
 - **Form errors** (placed next to the field, typed input kept):
   - "Enter the company name"
   - "Enter the role"

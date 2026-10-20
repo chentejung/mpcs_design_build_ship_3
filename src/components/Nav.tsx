@@ -32,7 +32,7 @@ export function Nav() {
                         `ml-1 whitespace-nowrap rounded-md bg-accent px-3 py-2 font-semibold text-paper hover:bg-accent-ink ${
                           current ? "ring-2 ring-ink ring-offset-2 ring-offset-paper" : ""
                         }`
-                      : `whitespace-nowrap rounded px-2 py-2 underline-offset-4 sm:px-3 hover:underline ${
+                      : `whitespace-nowrap rounded px-1.5 py-2 underline-offset-4 sm:px-3 hover:underline ${
                           current ? "font-semibold text-accent underline decoration-2" : "text-muted"
                         }`
                   }
