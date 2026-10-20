@@ -25,3 +25,14 @@ export function validateJob(form: JobForm, isDuplicate: (url: string) => boolean
   if (!form.role.trim()) errors.role = "Enter the role";
   return errors;
 }
+
+export const MAX_GOAL = 50;
+
+/** Returns an error message for the weekly goal, or null if it's a whole number 1–50. */
+export function validateGoal(value: string): string | null {
+  const n = Number(value.trim());
+  if (!value.trim() || !Number.isInteger(n) || n < 1 || n > MAX_GOAL) {
+    return `Enter a whole number from 1 to ${MAX_GOAL}`;
+  }
+  return null;
+}

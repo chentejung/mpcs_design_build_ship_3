@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ApplicationRow } from "@/components/ApplicationRow";
 import { Button, ButtonLink } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,8 +12,14 @@ const FILTERS: Filter[] = ["All", ...STATUSES];
 
 export function ApplicationList() {
   const tracker = useTracker();
-  const addedId = useSearchParams().get("added");
+  const searchParams = useSearchParams();
+  // Read the "just added" id once, then drop it from the URL so a refresh doesn't repeat the banner.
+  const [addedId] = useState(() => searchParams.get("added"));
   const [filter, setFilter] = useState<Filter>("All");
+
+  useEffect(() => {
+    if (searchParams.has("added")) window.history.replaceState(null, "", "/applications");
+  }, [searchParams]);
 
   if (!tracker) return null; // Not hydrated yet; avoids flashing an empty state.
 

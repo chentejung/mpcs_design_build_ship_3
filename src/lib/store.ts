@@ -155,3 +155,7 @@ export function addApplication(input: { url: string; company: string; role: stri
   write({ ...state, applications: [application, ...state.applications] });
   return application;
 }
+
+export function setWeeklyGoal(goal: number) {
+  write({ ...read(), weeklyGoal: goal });
+}
