@@ -109,6 +109,25 @@ After deploying, a fresh agent (no access to the code or this conversation) used
 
 **What I learned:** the flows held up, but the agent spotted gaps I had cut for simplicity (deleting) that turn out to be essential, and inconsistencies (example counts) I'd stopped noticing. Testing as a stranger caught things my own scripted tests didn't.
 
+### Round 2 (after the onboarding rebuild)
+
+Same setup with a new fresh agent and a new goal: *"Get set up, add three jobs you applied to this week, then come back later and check on them."*
+
+**What worked:** the two-step setup was clear within seconds, and "an Add button will appear here" explained how to finish. Errors sat next to their fields and kept what was typed. A link without `https://` was fixed instead of rejected. Delete with Undo, the empty filter state, and the return screen were easy to use ("the Add button is hard to miss"). Setup worked with only the keyboard, the phone layout held up, and there were no console errors.
+
+**What it found, and what I did:**
+
+| # | Issue | Severity | Change |
+|---|---|---|---|
+| 1 | Clicking "+ Add" again opened the form still filled with the previous job | High | **Fixed (bug).** Next.js 16 (`cacheComponents`) keeps recently visited pages alive and restores their React state. The form now resets after a successful save. An unsaved draft is still kept if you leave midway. |
+| 2 | After a second add, the banner said "Added" with the *previous* job, or showed nothing | High | **Fixed (bug).** Same cause. The banner and highlight now follow each new save and clear when you leave the page. |
+| 3 | "You're all set" showed before anything was saved | Medium | **Fixed:** now reads "Both steps done. Press Add to save." The button stays **Add**. |
+| 4 | A goal of 9999 was accepted | Low | Not changed: no upper limit is a deliberate choice |
+| 5 | The summary leaves out rejections | Low | Not changed |
+| 6 | After saving, keyboard focus landed on the page body | Low | **Fixed:** focus moves to the "Added …" confirmation |
+
+**What I learned:** my own scripted tests loaded each page fresh, so they never caught bugs 1 and 2. The tester moved around the site the way a person does, without reloading, and that's what exposed them. I added a regression test that does four adds in a row using only in-app navigation.
+
 ## Design changes after round 1
 
 - **Onboarding rebuilt:** example jobs removed. The first visit is now two numbered steps, *Add your first application* (folds up automatically once the link, company, and role are valid) and *Set your weekly application goal* (any whole number, no upper limit), followed by an **Add** button that appears when both are done.

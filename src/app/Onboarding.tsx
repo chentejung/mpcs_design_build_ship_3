@@ -72,6 +72,10 @@ export function Onboarding() {
       return;
     }
     const saved = completeOnboarding({ ...job, url: withScheme(job.url) }, Number(goal.trim()));
+    // Next.js keeps this page alive after navigating away; reset in case onboarding shows again.
+    setJob({ url: "", company: "", role: "" });
+    setJobDone(false);
+    setGoal("");
     router.push(`/applications?added=${saved.id}`);
   }
 
@@ -190,7 +194,7 @@ export function Onboarding() {
         <div aria-live="polite" className="flex flex-col items-start gap-3">
           {ready ? (
             <>
-              <p className="font-serif text-lg">You&rsquo;re all set.</p>
+              <p className="font-serif text-lg">Both steps done. Press Add to save.</p>
               <Button type="submit" className="px-8 py-3 text-base">
                 Add
               </Button>

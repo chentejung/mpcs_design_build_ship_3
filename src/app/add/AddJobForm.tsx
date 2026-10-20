@@ -36,6 +36,8 @@ export function AddJobForm() {
     }
 
     const saved = addApplication({ ...form, url: withScheme(form.url) });
+    // Next.js keeps this page alive after navigating away; start fresh for the next job.
+    setForm({ url: "", company: "", role: "" });
     router.push(`/applications?added=${saved.id}`);
   }
 
