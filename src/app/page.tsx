@@ -1,79 +1,49 @@
 "use client";
 
 import { ApplicationRow } from "@/components/ApplicationRow";
-import { Button, ButtonLink } from "@/components/Button";
-import { PasteLinkForm } from "@/components/PasteLinkForm";
+import { ButtonLink } from "@/components/Button";
 import { WeeklyGoal } from "@/components/WeeklyGoal";
 import { plural, timeAgo } from "@/lib/format";
-import { clearExamples, countThisWeek, useTracker, type Application, type TrackerState } from "@/lib/store";
+import { countThisWeek, useTracker, type TrackerState } from "@/lib/store";
+import { Onboarding } from "./Onboarding";
 
 export default function Home() {
   const tracker = useTracker();
   if (!tracker) return null; // Not hydrated yet; avoids flashing the wrong view.
 
-  const real = tracker.applications.filter((a) => !a.example);
-  return real.length > 0 ? <WelcomeBack tracker={tracker} real={real} /> : <FirstVisit tracker={tracker} />;
+  return tracker.applications.length > 0 ? <WelcomeBack tracker={tracker} /> : <Onboarding />;
 }
 
-function FirstVisit({ tracker }: { tracker: TrackerState }) {
-  const examples = tracker.applications.filter((a) => a.example);
+function WelcomeBack({ tracker }: { tracker: TrackerState }) {
+  const all = tracker.applications;
+  const interviewing = all.filter((a) => a.status === "Interviewing").length;
+  const offers = all.filter((a) => a.status === "Offer").length;
+  const latest = all.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
+  const recent = [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3);
 
   return (
     <div className="flex flex-col gap-10">
-      <section>
-        <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-          Track every job you apply to.
-        </h1>
-        <p className="mt-3 text-lg text-muted">Saved on this device. No sign-up.</p>
-      </section>
-
-      <PasteLinkForm hint="Paste the link to a job posting to add it." />
-
-      <WeeklyGoal done={0} goal={tracker.weeklyGoal} />
-
-      {examples.length > 0 && (
-        <section aria-labelledby="examples-heading" className="flex flex-col gap-3">
-          <h2 id="examples-heading" className="font-serif text-2xl font-semibold">
-            Here&rsquo;s how it looks
-          </h2>
-          <p className="text-muted">Try changing a status. Your choice is saved right away.</p>
-          <ul className="flex flex-col gap-2">
-            {examples.map((a) => (
-              <ApplicationRow key={a.id} application={a} />
-            ))}
-          </ul>
-          <Button variant="quiet" className="self-end" onClick={clearExamples}>
-            Clear examples
-          </Button>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function WelcomeBack({ tracker, real }: { tracker: TrackerState; real: Application[] }) {
-  const interviewing = real.filter((a) => a.status === "Interviewing").length;
-  const offers = real.filter((a) => a.status === "Offer").length;
-  const latest = real.reduce((a, b) => (a.createdAt > b.createdAt ? a : b));
-  const recent = [...real].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3);
-
-  return (
-    <div className="flex flex-col gap-10">
-      <section>
+      <section className="flex flex-col gap-6">
         <h1 className="font-serif text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
           Welcome back.
         </h1>
-        <p className="mt-3 text-lg text-muted">
-          {plural(real.length, "application")} · {interviewing} interviewing · {plural(offers, "offer")}
-        </p>
-        <p className="mt-1 text-muted">
-          Last added: {latest.company}, {timeAgo(latest.createdAt)}
-        </p>
+
+        <div className="rounded-lg border-l-4 border-accent bg-card px-5 py-4">
+          <p className="font-serif text-2xl leading-snug text-ink">
+            <Count n={all.length} word="application" /> · <Count n={interviewing} word="interviewing" fixed /> ·{" "}
+            <Count n={offers} word="offer" />
+          </p>
+          <p className="mt-1 text-lg text-ink">
+            Last added: <strong className="font-semibold text-accent">{latest.company}</strong>, {timeAgo(latest.createdAt)}
+          </p>
+        </div>
+
+        <ButtonLink href="/add" className="self-start px-6 py-3 text-base">
+          + Add an application
+        </ButtonLink>
       </section>
 
-      <WeeklyGoal done={countThisWeek(real)} goal={tracker.weeklyGoal} />
-
-      <PasteLinkForm hint="Applied somewhere new? Paste the link." />
+      <WeeklyGoal done={countThisWeek(all)} goal={tracker.weeklyGoal} />
 
       <section aria-labelledby="recent-heading" className="flex flex-col gap-3">
         <h2 id="recent-heading" className="font-serif text-2xl font-semibold">
@@ -85,9 +55,19 @@ function WelcomeBack({ tracker, real }: { tracker: TrackerState; real: Applicati
           ))}
         </ul>
         <ButtonLink href="/applications" variant="secondary" className="self-start">
-          {real.length === 1 ? "See it in Applications" : `See all ${real.length} applications`}
+          {all.length === 1 ? "See it in Applications" : `See all ${all.length} applications`}
         </ButtonLink>
       </section>
     </div>
+  );
+}
+
+/** A count with its number emphasized, e.g. "**3** applications". */
+function Count({ n, word, fixed = false }: { n: number; word: string; fixed?: boolean }) {
+  const [num, ...rest] = (fixed ? `${n} ${word}` : plural(n, word)).split(" ");
+  return (
+    <span className="whitespace-nowrap">
+      <strong className="font-semibold text-accent">{num}</strong> {rest.join(" ")}
+    </span>
   );
 }

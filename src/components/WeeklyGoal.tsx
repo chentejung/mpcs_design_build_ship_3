@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { setWeeklyGoal } from "@/lib/store";
-import { MAX_GOAL, validateGoal } from "@/lib/validate";
+import { validateGoal } from "@/lib/validate";
 import { Button } from "./Button";
 import { Field } from "./Field";
 import { Input } from "./Input";
@@ -60,12 +60,11 @@ export function WeeklyGoal({ done, goal }: { done: number; goal: number }) {
 
       {editing && (
         <form onSubmit={onSubmit} noValidate className="flex flex-col gap-3 pt-2">
-          <Field label="Applications per week" hint={`A number from 1 to ${MAX_GOAL}.`} error={error}>
+          <Field label="Applications per week" hint="Any whole number, 1 or more." error={error}>
             <Input
               type="number"
               inputMode="numeric"
               min={1}
-              max={MAX_GOAL}
               autoFocus
               value={value}
               onChange={(e) => {

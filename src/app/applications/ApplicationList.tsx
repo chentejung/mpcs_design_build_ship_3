@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ApplicationRow } from "@/components/ApplicationRow";
 import { Button, ButtonLink } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
-import { STATUSES, clearExamples, useTracker, type Status } from "@/lib/store";
+import { STATUSES, useTracker, type Status } from "@/lib/store";
 
 type Filter = "All" | Status;
 const FILTERS: Filter[] = ["All", ...STATUSES];
@@ -32,7 +32,6 @@ export function ApplicationList() {
   const all = tracker.applications;
   const added = addedId ? all.find((a) => a.id === addedId) : undefined;
   const shown = filter === "All" ? all : all.filter((a) => a.status === filter);
-  const hasExamples = all.some((a) => a.example);
 
   if (all.length === 0) {
     return (
@@ -94,11 +93,6 @@ export function ApplicationList() {
         </ul>
       )}
 
-      {hasExamples && (
-        <Button variant="quiet" className="self-end" onClick={clearExamples}>
-          Clear examples
-        </Button>
-      )}
     </div>
   );
 }
